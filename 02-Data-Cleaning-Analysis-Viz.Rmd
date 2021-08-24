@@ -9,7 +9,7 @@ editor_options:
 
 # Acknowlegment
 
-This analysis was inspired by a Buzzfeed analysis of excess deaths and their published R code, which is available here: https://github.com/BuzzFeedNews/2021-05-tx-winter-storm-deaths
+The code used in this analysis was adapted from a Buzzfeed analysis of excess deaths due to the Texas Winter Storms. Their published R code is available here: https://github.com/BuzzFeedNews/2021-05-tx-winter-storm-deaths
 
 # Setup
 
