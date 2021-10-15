@@ -22,6 +22,7 @@ library(lubridate)
 library(splines)
 library(scales)
 library(patchwork)
+library(broom)
 
 ```
 
@@ -46,9 +47,12 @@ Throughout this analysis we use the following acronyms:
 ```{r}
 
 # Load Weekly data. Single Data file includes all 10 samples for each abuse type. 
+path <- "/Users/corinneriddell/Box Sync/Google-search-data/Excess Search NATIONAL Analysis/TEST/"
 
-Weekly.CM <- read.csv("WeeklyData/US-Weekly-CM.csv", stringsAsFactors = F) %>% 
-  pivot_longer(cols = c("sample_0":"sample_9"), names_to = "SampleNo" , values_to = "value") %>% 
+Weekly.CM <- read.csv(paste0(path, "WeeklyData/US-Weekly-CM.csv"),
+                      stringsAsFactors = F) %>% 
+  pivot_longer(cols = c("sample_0":"sample_9"), 
+               names_to = "SampleNo" , values_to = "value") %>% 
   mutate(date = as.Date(period, format = "%Y-%m-%d")) %>% 
   group_by(date) %>% 
   summarise(mean_value = mean(value)) %>% 
@@ -56,7 +60,7 @@ Weekly.CM <- read.csv("WeeklyData/US-Weekly-CM.csv", stringsAsFactors = F) %>%
          abuse_type = "CM") 
 
 
-Weekly.DV <- read.csv("WeeklyData/US-Weekly-DV.csv", stringsAsFactors = F) %>% 
+Weekly.DV <- read.csv(paste0(path, "WeeklyData/US-Weekly-DV.csv"), stringsAsFactors = F) %>% 
   pivot_longer(cols = c("sample_0":"sample_9"), names_to = "SampleNo" , values_to = "value") %>% 
   mutate(date = as.Date(period, format = "%Y-%m-%d")) %>% 
   group_by(date) %>% 
@@ -65,7 +69,7 @@ Weekly.DV <- read.csv("WeeklyData/US-Weekly-DV.csv", stringsAsFactors = F) %>%
          abuse_type = "DV")  
 
 
-Weekly.IPV <- read.csv("WeeklyData/US-Weekly-IPV.csv", stringsAsFactors = F) %>% 
+Weekly.IPV <- read.csv(paste0(path, "WeeklyData/US-Weekly-IPV.csv"), stringsAsFactors = F) %>% 
   pivot_longer(cols = c("sample_0":"sample_9"), names_to = "SampleNo" , values_to = "value") %>% 
   mutate(date = as.Date(period, format = "%Y-%m-%d")) %>% 
   group_by(date) %>% 
@@ -75,8 +79,7 @@ Weekly.IPV <- read.csv("WeeklyData/US-Weekly-IPV.csv", stringsAsFactors = F) %>%
 
 Weekly.Data <- rbind(Weekly.CM, Weekly.DV, Weekly.IPV)
 
-
- # clean up environment
+# clean up environment
 rm(Weekly.CM, Weekly.DV, Weekly.IPV )
 ```
 
@@ -85,7 +88,7 @@ rm(Weekly.CM, Weekly.DV, Weekly.IPV )
 
 # Load Monthly data. Only a single sample for each abuse type is used for this supplementary analysis. 
 
-Monthly.CM <- read.csv("MonthlyData/US-Monthly-CM.csv", stringsAsFactors = F)%>% 
+Monthly.CM <- read.csv(paste0(path, "MonthlyData/US-Monthly-CM.csv"), stringsAsFactors = F)%>% 
   mutate(date = as.Date(timestamp, format = "%Y-%m-%d"),
          month_of_year = month(date),
          mean_value = value,
@@ -93,7 +96,7 @@ Monthly.CM <- read.csv("MonthlyData/US-Monthly-CM.csv", stringsAsFactors = F)%>%
   select(date, mean_value, month_of_year, abuse_type)
 
 
-Monthly.DV <- read.csv("MonthlyData/US-Monthly-DV.csv", stringsAsFactors = F)%>% 
+Monthly.DV <- read.csv(paste0(path, "MonthlyData/US-Monthly-DV.csv"), stringsAsFactors = F)%>% 
   mutate(date = as.Date(timestamp, format = "%Y-%m-%d"),
          month_of_year = month(date),
          mean_value = value,
@@ -101,7 +104,7 @@ Monthly.DV <- read.csv("MonthlyData/US-Monthly-DV.csv", stringsAsFactors = F)%>%
   select(date, mean_value, month_of_year, abuse_type)
 
 
-Monthly.IPV <- read.csv("MonthlyData/US-Monthly-IPV.csv", stringsAsFactors = F) %>% 
+Monthly.IPV <- read.csv(paste0(path, "MonthlyData/US-Monthly-IPV.csv"), stringsAsFactors = F) %>% 
   mutate(date = as.Date(timestamp, format = "%Y-%m-%d"),
          month_of_year = month(date),
          mean_value = value,
@@ -114,22 +117,19 @@ Monthly.Data <- rbind(Monthly.CM, Monthly.DV, Monthly.IPV)
 rm(Monthly.CM, Monthly.DV, Monthly.IPV ) 
 ```
 
-
-
 # Main Analysis: Calculate expected search volume based on pre-pandemic data from 2017-2019
 
 ```{r}
-
-set.seed(123)
-
 # Data frame to hold observed and expected search volume
-
 Weekly_Excess_Searches <- tibble()
 Monthly_Excess_Searches <- tibble()
 
+adj_rsqs <- c(0, 0, 0)
+counter <- 0
 # Loop over each abuse type to create abuse-specific models and use them to predict expected search volume
 
 for (i in unique(Weekly.Data$abuse_type)) {
+  counter <- counter + 1
   
   Abuse.i.Weekly <- Weekly.Data %>% filter(abuse_type == i)
   Abuse.i.Monthly <- Monthly.Data %>% filter(abuse_type == i)
@@ -150,20 +150,20 @@ for (i in unique(Weekly.Data$abuse_type)) {
                                       knots = quantile(month_of_year, 
                                             c(0.1, 0.5, 0.9))), data = Monthly.Data.pre2020)
 
-  
-  # Predicted expected search volume based on model for entire time period
-  
+  # Store the adjusted r-squared value
+  adj_rsqs[counter] <- broom::glance(Weekly.model) %>% pull(adj.r.squared)
+
+  # Predicted expected search volume based on model for ENTIRE time period
   Weekly_pred <- as_tibble(predict(Weekly.model, Abuse.i.Weekly, interval = "prediction"))
   Monthly_pred <- as_tibble(predict(Monthly.model, Abuse.i.Monthly, interval = "prediction"))
   
   
   # Add predictions to dataframe and then add to master Excess Search file
   Abuse.i.Weekly <- bind_cols(Abuse.i.Weekly, Weekly_pred)
-  Weekly_Excess_Searches <- bind_rows(Weekly_Excess_Searches,tmp.w)
+  Weekly_Excess_Searches <- bind_rows(Weekly_Excess_Searches, tmp.w) #this line throws an error tmp.w not found
   
   Abuse.i.Monthly <- bind_cols(Abuse.i.Monthly, Monthly_pred)
-  Monthly_Excess_Searches <- bind_rows(Monthly_Excess_Searches,tmp.m)
-  
+  Monthly_Excess_Searches <- bind_rows(Monthly_Excess_Searches, tmp.m) # this line throws an error tmp.m not found
   
 }
 
@@ -182,8 +182,6 @@ rm(Abuse.i.Weekly, Abuse.i.Monthly, Weekly.Data.pre2020, Monthly.Data.pre2020,
      Weekly.model, Monthly.model, Weekly_pred, Monthly_pred) 
 
 ```
-
-
 
 # Data Visualizations
 
