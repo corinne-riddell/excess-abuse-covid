@@ -28,7 +28,7 @@ library(broom)
 
 # Data import and cleaning
 
-This code assumes and R project directory with the following sub-folders:
+This code assumes an R project directory with the following sub-folders:
 
 * WeeklyData - containing 3 csv files, one for each of the 3 abuse types. The csv files each contain multiple Google Search samples at the weekly resolution, as pulled via the "01-Pull-Data-From-API.py" file and formatted in wide format
 
