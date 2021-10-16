@@ -39,9 +39,9 @@ This code assumes and R project directory with the following sub-folders:
 
 Throughout this analysis we use the following acronyms: 
 
-* "CM"  - first-hand account child maltreatment or abuse
-* "DV"  - child-witness intimate partner violence (also known as domestic violence)
-* "IPV" - first-hand account intimate partner violence
+* "CM"  - Child abuse victimization ("child abuse")
+* "DV"  - Child-witnessed intimate partner violence ("domestic violence")
+* "IPV" - Intimate partner violence victimization ("intimate partner violence")
 
 ## Weekly Data
 ```{r}
@@ -160,10 +160,10 @@ for (i in unique(Weekly.Data$abuse_type)) {
   
   # Add predictions to dataframe and then add to master Excess Search file
   Abuse.i.Weekly <- bind_cols(Abuse.i.Weekly, Weekly_pred)
-  Weekly_Excess_Searches <- bind_rows(Weekly_Excess_Searches, tmp.w) #this line throws an error tmp.w not found
+  Weekly_Excess_Searches <- bind_rows(Weekly_Excess_Searches, Abuse.i.Weekly) 
   
   Abuse.i.Monthly <- bind_cols(Abuse.i.Monthly, Monthly_pred)
-  Monthly_Excess_Searches <- bind_rows(Monthly_Excess_Searches, tmp.m) # this line throws an error tmp.m not found
+  Monthly_Excess_Searches <- bind_rows(Monthly_Excess_Searches, Abuse.i.Monthly) 
   
 }
 
@@ -200,7 +200,7 @@ date.vec = seq(from = as.Date("2017-01-01"),
                by = "2 months")
 
 
-# Child Maltreatment ----------------------------------------------------------------------------------------------
+# Child abuse victimization ----------------------------------------------------------------------------------------------
 
 CM.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "CM"), 
                          aes(y = mean_value, x = date)) +
@@ -215,7 +215,7 @@ CM.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "CM"),
   geom_line(aes(y = fit, x = date, alpha = after_2020), size = 1.05, color = '#175873') +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(A) first-hand account child abuse") +
+  labs(title = "(A) Child abuse victimization") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7),
         axis.title.y = element_text(vjust=2),
@@ -256,7 +256,7 @@ ggsave("Plots/Weekly_Trends_DV.png", DV.Weekly.plot, height = 7, width = 12, uni
 
 
 
-# IPV ----------------------------------------------------------------------------------------------------------
+# Intimate partner violence victimization  ------------------------------------------------------------------------
 
 IPV.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "IPV"), 
                           aes(y = mean_value, x = date)) +
@@ -271,7 +271,7 @@ IPV.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "IPV")
   geom_line(aes(y = fit, x = date, alpha = after_2020), size = 1.05, color = '#175873') +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(C) first-hand account intimate partner violence") +
+  labs(title = "(C) Intimate partner violence victimization") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7), #vjust = .5
         axis.title.y = element_text(vjust=2),
@@ -300,7 +300,7 @@ date.vec = seq(from = as.Date("2017-01-01"),
                by = "2 months")
 
 
-# Child Maltreatment ----------------------------------------------------------------------------------------------
+# Child abuse victimization ----------------------------------------------------------------------------------------------
 
 CM.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "CM"), 
                           aes(y = mean_value, x = date)) +
@@ -311,7 +311,7 @@ CM.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "CM")
   geom_line(aes(y = fit, x = date), size = 1.05, color = '#175873') +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(A) first-hand account child abuse") +
+  labs(title = "(A) Child abuse victimization") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7),
         axis.title.y = element_text(vjust=2),
@@ -351,7 +351,7 @@ ggsave("Plots/Monthly_Trends_DV.png", DV.Monthly.plot, height = 7, width = 12, u
 
 
 
-# IPV ----------------------------------------------------------------------------------------------------------
+# Intimate partner violence victimization ----------------------------------------------------------------------------
 
 IPV.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "IPV"), 
                            aes(y = mean_value, x = date)) +
@@ -362,7 +362,7 @@ IPV.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "IPV
   geom_line(aes(y = fit, x = date), size = 1.05, color = '#175873') +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(C) first-hand account intimate partner violence") +
+  labs(title = "(C) Intimate partner violence victimization") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7), #vjust = .5
         axis.title.y = element_text(vjust=2),
@@ -393,7 +393,7 @@ date.vec = seq(from = as.Date("2017-01-01"),
                by = "2 months")
 
 
-# Child Maltreatment ----------------------------------------------------------------------------------------------
+# Child abuse victimization ----------------------------------------------------------------------------------------------
 
 CM.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "CM"), 
                            aes(y = fit, x = date)) +
@@ -402,7 +402,7 @@ CM.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "CM")
             linetype = "dashed", color = "black" ) +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(A) first-hand account child abuse") +
+  labs(title = "(A) Child abuse victimization") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7),
         axis.title.y = element_text(vjust=2),
@@ -438,7 +438,7 @@ ggsave("Plots/Both_Trends_DV.png", DV.Together.plot, height = 7, width = 12, uni
 
 
 
-# IPV ----------------------------------------------------------------------------------------------------------
+# Intimate partner violence victimization -------------------------------------------------------------------------------
 
 IPV.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "IPV"), 
                             aes(y = fit, x = date)) +
@@ -447,7 +447,7 @@ IPV.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "IPV
             linetype = "dashed", color = "black" ) +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(C) first-hand account intimate partner violence") +
+  labs(title = "(C) Intimate partner violence victimization") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7), #vjust = .5
         axis.title.y = element_text(vjust=2),
