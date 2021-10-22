@@ -34,7 +34,7 @@ This code assumes an R project directory with the following sub-folders:
 
 * MonthlyData - containing 3 csv files, one for each of the 3 abuse types. The csv files each contain only 1 Google Search sample at the monthly resolution, as pulled via the "01-Pull-Data-From-API.py" 
 
-* Plots - an empty folder where the data visualizations will be saved
+* ./plots - an empty folder where the data visualizations will be saved
 
 
 Throughout this analysis we use the following acronyms: 
@@ -185,16 +185,16 @@ rm(Abuse.i.Weekly, Abuse.i.Monthly, Weekly.Data.pre2020, Monthly.Data.pre2020,
 
 # Data Visualizations
 
-We save both the individual plots for each abuse type as well as the single combined figure. Output includes:
+We save both the individual ./plots for each abuse type as well as the single combined figure. Output includes:
 
-* Plots of the weekly data
-* Plots of the monthly data
-* Plots of the weekly and monthly predicted trends together
+* ./plots of the weekly data
+* ./plots of the monthly data
+* ./plots of the weekly and monthly predicted trends together
 
-## Weekly Plots
+## Weekly ./plots
 ```{r}
 
-# Set date labels for plots
+# Set date labels for ./plots
 date.vec = seq(from = as.Date("2017-01-01"),
                to = as.Date("2021-01-01"),
                by = "2 months")
@@ -224,7 +224,7 @@ CM.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "CM"),
   scale_x_date(breaks = date.vec, date_labels = "%b-%y")
 
 CM.Weekly.plot
-ggsave("Plots/Weekly_Trends_CM.png", CM.Weekly.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Weekly_Trends_CM.png", CM.Weekly.plot, height = 7, width = 12, units = "in")
 
 
 
@@ -252,7 +252,7 @@ DV.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "DV"),
   scale_x_date(breaks = date.vec, date_labels = "%b-%y")
 
 DV.Weekly.plot
-ggsave("Plots/Weekly_Trends_DV.png", DV.Weekly.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Weekly_Trends_DV.png", DV.Weekly.plot, height = 7, width = 12, units = "in")
 
 
 
@@ -280,21 +280,21 @@ IPV.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "IPV")
   scale_x_date(breaks = date.vec, date_labels = "%b-%y") 
 
 IPV.Weekly.plot
-ggsave("Plots/Weekly_Trends_IPV.png", IPV.Weekly.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Weekly_Trends_IPV.png", IPV.Weekly.plot, height = 7, width = 12, units = "in")
 
 
 
 # Combined Plot ----------------------------------------------------------------------------------------------
 
 Weekly.Combined.plot <- CM.Weekly.plot/DV.Weekly.plot/IPV.Weekly.plot
-ggsave("Plots/Weekly_Trends_Combined.png", Weekly.Combined.plot, height = 18, width = 16, units = "in", dpi = 150)
+ggsave("./plots/Weekly_Trends_Combined.png", Weekly.Combined.plot, height = 18, width = 16, units = "in", dpi = 150)
 
 ```
 
-## Monthly Plots
+## Monthly ./plots
 ```{r}
 
-# Set date labels for plots
+# Set date labels for ./plots
 date.vec = seq(from = as.Date("2017-01-01"),
                to = as.Date("2021-01-01"),
                by = "2 months")
@@ -322,7 +322,7 @@ CM.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "CM")
                date_labels = "%b-%y")
 
 CM.Monthly.plot
-ggsave("Plots/Monthly_Trends_CM.png", CM.Monthly.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Monthly_Trends_CM.png", CM.Monthly.plot, height = 7, width = 12, units = "in")
 
 
 
@@ -347,7 +347,7 @@ DV.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "DV")
                date_labels = "%b-%y")
 
 DV.Monthly.plot
-ggsave("Plots/Monthly_Trends_DV.png", DV.Monthly.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Monthly_Trends_DV.png", DV.Monthly.plot, height = 7, width = 12, units = "in")
 
 
 
@@ -372,14 +372,14 @@ IPV.Monthly.plot <- ggplot(Monthly_Excess_Searches %>% filter(abuse_type == "IPV
                date_labels = "%b-%y") 
 
 IPV.Monthly.plot
-ggsave("Plots/Monthly_Trends_DV.png", IPV.Monthly.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Monthly_Trends_DV.png", IPV.Monthly.plot, height = 7, width = 12, units = "in")
 
 
 
 # Combined Plot ----------------------------------------------------------------------------------------------
 
 Monthly.Combined.plot <- CM.Monthly.plot/DV.Monthly.plot/IPV.Monthly.plot
-ggsave("Plots/Monthly_Trends_Combined.png", Monthly.Combined.plot, height = 18, width = 16, units = "in", dpi = 150)
+ggsave("./plots/Monthly_Trends_Combined.png", Monthly.Combined.plot, height = 18, width = 16, units = "in", dpi = 150)
 
 ```
 
@@ -412,7 +412,7 @@ CM.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "CM")
   scale_x_date(breaks = date.vec, date_labels = "%b-%y")
 
 CM.Together.plot
-ggsave("Plots/Both_Trends_CM.png", CM.Together.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Both_Trends_CM.png", CM.Together.plot, height = 7, width = 12, units = "in")
 
 
 
@@ -434,7 +434,7 @@ DV.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "DV")
   scale_x_date(breaks = date.vec, date_labels = "%b-%y")
 
 DV.Together.plot
-ggsave("Plots/Both_Trends_DV.png", DV.Together.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Both_Trends_DV.png", DV.Together.plot, height = 7, width = 12, units = "in")
 
 
 
@@ -456,14 +456,14 @@ IPV.Together.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "IPV
   scale_x_date(breaks = date.vec, date_labels = "%b-%y") 
 
 IPV.Together.plot
-ggsave("Plots/Both_Trends_IPV.png", IPV.Together.plot, height = 7, width = 12, units = "in")
+ggsave("./plots/Both_Trends_IPV.png", IPV.Together.plot, height = 7, width = 12, units = "in")
 
 
 
 # Combined Plot ----------------------------------------------------------------------------------------------
 
 Plot.Combined.Trends <- CM.Together.plot/DV.Together.plot/IPV.Together.plot
-ggsave("Plots/Both_Trends_Combined.png", Plot.Combined.Trends, height = 18, width = 16, units = "in", dpi = 150)
+ggsave("./plots/Both_Trends_Combined.png", Plot.Combined.Trends, height = 18, width = 16, units = "in", dpi = 150)
 
 ```
 
