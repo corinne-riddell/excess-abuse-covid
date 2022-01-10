@@ -233,4 +233,6 @@ ggsave("Plots/Weekly_Trends_IPV.png", IPV.Weekly.plot, height = 7, width = 12, u
 Weekly.Combined.plot <- CM.Weekly.plot/DV.Weekly.plot/IPV.Weekly.plot
 ggsave("Plots/Weekly_Trends_Combined.png", Weekly.Combined.plot, height = 18, width = 16, units = "in", dpi = 150)
 
+# Note: To add policy annotations to this plot, please refer to the 03-Excess-Search-Fig-Annotations InDesign file. Unless significant modifications were made to the size of the exported R images, you should just need to re-link the Weekly_Trends_Combined.png file to obtain an updated plot with annotations.
+
 ```
