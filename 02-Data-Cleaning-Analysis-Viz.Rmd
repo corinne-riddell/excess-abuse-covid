@@ -187,7 +187,7 @@ DV.Weekly.plot <- ggplot(Weekly_Excess_Searches %>% filter(abuse_type == "DV"),
   geom_line(aes(y = fit, x = date, alpha = after_2020), size = 1.05, color = '#175873') +
   theme_minimal(base_size = 16) +
   xlab("") + ylab("Search Outcome") +
-  labs(title = "(B) child-witnessed intimate partner violence") +
+  labs(title = "(B) Child-witnessed intimate partner violence") +
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = .7, vjust = .7),
         axis.title.y = element_text(vjust=2),
