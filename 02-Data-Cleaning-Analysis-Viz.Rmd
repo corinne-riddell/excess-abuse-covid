@@ -23,7 +23,8 @@ library(splines)
 library(scales)
 library(patchwork)
 library(broom)
-
+library(magrittr)
+library(patchwork)
 ```
 
 # Data import and cleaning
@@ -45,10 +46,28 @@ Throughout this analysis we use the following acronyms:
 ```{r}
 
 # Load Weekly data. Single Data file includes all 10 samples for each abuse type. 
-path <- "/Users/corinneriddell/Box Sync/Google-search-data/Excess Search NATIONAL Analysis/TEST/"
 
-Weekly.CM <- read.csv(paste0(path, "WeeklyData/US-Weekly-CM.csv"),
-                      stringsAsFactors = F) %>% 
+path <- "/Users/corinneriddell/Library/CloudStorage/Box-Box/Google-search-data/Excess Search NATIONAL Analysis/TEST/"
+
+
+## investigate the distribution of the sampled measures to answer reviewer question
+Weekly.CM0 <- read.csv(paste0(path, "WeeklyData/US-Weekly-CM.csv"),
+                      stringsAsFactors = F)
+
+Weekly.CM01 <- Weekly.CM0 %>% 
+  pivot_longer(cols = c("sample_0":"sample_9"), 
+               names_to = "SampleNo" , values_to = "value")
+
+mean_med <- Weekly.CM01 %>% group_by(period) %>%
+  summarise(mean = mean(value), 
+         median = median(value),
+         diff = mean - median,
+         diff2 = diff/mean)
+
+ggplot(mean_med, aes(x = diff2)) + geom_histogram(col = "white")
+  
+
+Weekly.CM <- Weekly.CM0 %>% 
   pivot_longer(cols = c("sample_0":"sample_9"), 
                names_to = "SampleNo" , values_to = "value") %>% 
   mutate(date = as.Date(period, format = "%Y-%m-%d")) %>% 
@@ -58,8 +77,22 @@ Weekly.CM <- read.csv(paste0(path, "WeeklyData/US-Weekly-CM.csv"),
          abuse_type = "CM") 
 
 
-Weekly.DV <- read.csv(paste0(path, "WeeklyData/US-Weekly-DV.csv"), 
-                      stringsAsFactors = F) %>% 
+Weekly.DV0 <- read.csv(paste0(path, "WeeklyData/US-Weekly-DV.csv"), 
+                      stringsAsFactors = F)
+
+Weekly.DV01 <- Weekly.DV0 %>% 
+  pivot_longer(cols = c("sample_0":"sample_9"), 
+               names_to = "SampleNo" , values_to = "value")
+
+mean_med1 <- Weekly.DV01 %>% group_by(period) %>%
+  summarise(mean = mean(value), 
+         median = median(value),
+         diff = mean - median,
+         diff2 = diff/mean)
+
+ggplot(mean_med1, aes(x = diff2)) + geom_histogram(col = "white")
+  
+Weekly.DV <- Weekly.DV0 %>% 
   pivot_longer(cols = c("sample_0":"sample_9"), names_to = "SampleNo" , values_to = "value") %>% 
   mutate(date = as.Date(period, format = "%Y-%m-%d")) %>% 
   group_by(date) %>% 
@@ -68,8 +101,22 @@ Weekly.DV <- read.csv(paste0(path, "WeeklyData/US-Weekly-DV.csv"),
          abuse_type = "DV")  
 
 
-Weekly.IPV <- read.csv(paste0(path, "WeeklyData/US-Weekly-IPV.csv"), 
-                       stringsAsFactors = F) %>% 
+Weekly.IPV0 <- read.csv(paste0(path, "WeeklyData/US-Weekly-IPV.csv"), 
+                       stringsAsFactors = F)
+
+Weekly.IPV01 <- Weekly.IPV0 %>% 
+  pivot_longer(cols = c("sample_0":"sample_9"), 
+               names_to = "SampleNo" , values_to = "value")
+
+mean_med2 <- Weekly.IPV01 %>% group_by(period) %>%
+  summarise(mean = mean(value), 
+         median = median(value),
+         diff = mean - median,
+         diff2 = diff/mean)
+
+ggplot(mean_med2, aes(x = diff2)) + geom_histogram(col = "white")
+
+Weekly.IPV <- Weekly.IPV0 %>%
   pivot_longer(cols = c("sample_0":"sample_9"), names_to = "SampleNo" , values_to = "value") %>% 
   mutate(date = as.Date(period, format = "%Y-%m-%d")) %>% 
   group_by(date) %>% 
@@ -82,6 +129,40 @@ Weekly.Data <- rbind(Weekly.CM, Weekly.DV, Weekly.IPV)
 # clean up environment
 rm(Weekly.CM, Weekly.DV, Weekly.IPV )
 
+```
+
+
+```{r}
+#descriptive stats and plots made to address reviewer comments
+
+Weekly.Data %<>% mutate(year = year(date),
+                        month = month(date))
+
+Weekly.Data %>% group_by(abuse_type, year) %>%
+  summarise(mean = mean(mean_value))
+ 
+by_month <- Weekly.Data %>% group_by(abuse_type, month) %>%
+  summarise(mean = mean(mean_value)) 
+
+ggplot(by_month, aes(x = month, y = mean)) + geom_line(aes(col = abuse_type)) +
+  theme_minimal() + labs(y = "Google search volume", x = "Month") + theme(legend.title=element_blank()) +
+  scale_color_discrete(breaks=c("CM", "DV", "IPV"),
+                         labels=c("Child abuse victimization", 
+                                  "Child-witnessed IPV", 
+                                  "IPV victimization")) +
+  scale_x_continuous(breaks = c(1:12), 
+                     labels = c("Jan", "Feb", "Mar", "Apr", "May", 
+                                "Jun", "Jul", "Aug", "Sep", "Oct",
+                                "Nov", "Dec"))
+
+#for reviewer
+#check for influential points
+ggplot(Weekly.Data, aes(x = mean_value)) + 
+  geom_density() +
+  facet_wrap(~abuse_type, scales = "free_x") + 
+  geom_rug() + 
+  labs(x = "Google search volume") + 
+  theme_bw()
 ```
 
 # Main Analysis: Calculate expected search volume based on pre-pandemic data from 2017-2019
@@ -106,15 +187,17 @@ for (i in unique(Weekly.Data$abuse_type)) {
 
   
   # Fit model 
-  Weekly.model <- lm(mean_value ~ date + ns(week_of_year, 
-                                      knots = quantile(week_of_year, 
-                                            c(0.1, 0.5, 0.9))), data = Weekly.Data.pre2020)
+  Weekly.model <- lm(mean_value ~ date + 
+                       ns(week_of_year, 
+                          knots = quantile(week_of_year, c(0.1, 0.5, 0.9))), 
+                     data = Weekly.Data.pre2020)
 
   # Store the adjusted r-squared value
   adj_rsqs[counter] <- broom::glance(Weekly.model) %>% pull(adj.r.squared)
 
   # Predicted expected search volume based on model for ENTIRE time period
-  Weekly_pred <- as_tibble(predict(Weekly.model, Abuse.i.Weekly, interval = "prediction"))
+  Weekly_pred <- as_tibble(predict(Weekly.model, Abuse.i.Weekly, 
+                                   interval = "prediction"))
   
   # Add predictions to dataframe and then add to master Excess Search file
   Abuse.i.Weekly <- bind_cols(Abuse.i.Weekly, Weekly_pred)
@@ -130,6 +213,30 @@ Weekly_Excess_Searches <- Weekly_Excess_Searches %>%
 # clean up environment
 rm(Abuse.i.Weekly, Weekly.Data.pre2020, Weekly.model, Weekly_pred) 
 
+```
+
+```{r}
+#Krista: can you incorporate this code into the previous code chunk and
+#save the plots for each of the three outcomes?
+#checking the linear model assumptions
+augmented_dat1 <- augment(Weekly.model)
+augmented_dat1 %<>% mutate(resid = mean_value - .fitted)
+
+# QQ plot - check Normality of the residuals
+plot2 <- ggplot(augmented_dat1, aes(sample = resid)) + 
+  geom_qq() + 
+  geom_qq_line() +
+  theme_minimal(base_size = 15) +
+  labs(y = "Residuals", x = "Theoretical quantiles", title = "(b) QQplot") 
+
+## Fitted vs. residuals
+plot3 <-ggplot(augmented_dat1, aes(y = resid, x = .fitted)) + 
+  geom_point() + 
+  theme_minimal(base_size = 15) +
+  geom_hline(aes(yintercept = 0)) +
+  labs(y = "Residuals", x = "Fitted values", title = "(c) Fitted vs. residuals") 
+
+plot2 + plot3 + plot_layout(nrow = 2) 
 ```
 
 # Data Visualizations
