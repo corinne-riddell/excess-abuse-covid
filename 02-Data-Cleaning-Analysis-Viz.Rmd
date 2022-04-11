@@ -139,7 +139,8 @@ Weekly.Data %<>% mutate(year = year(date),
                         month = month(date))
 
 Weekly.Data %>% group_by(abuse_type, year) %>%
-  summarise(mean = mean(mean_value))
+  summarise(mean = mean(mean_value), 
+            sd = sd(mean_value))
  
 by_month <- Weekly.Data %>% group_by(abuse_type, month) %>%
   summarise(mean = mean(mean_value)) 
