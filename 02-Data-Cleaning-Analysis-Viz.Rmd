@@ -1,7 +1,7 @@
 ---
 title: "Excess Abuse Searches During COVID: Analysis and Data Visualization"
-author: "Krista Neumann"
-date: "8/17/2021"
+author: "Krista Neumann & Corinne Riddell"
+date: "Original: 8/17/2021, Updated: 4/24/2022"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -43,6 +43,7 @@ Throughout this analysis we use the following acronyms:
 * "IPV" - Intimate partner violence victimization ("intimate partner violence")
 
 ## Import Weekly Data
+
 ```{r}
 
 # Load Weekly data. Single Data file includes all 10 samples for each abuse type. 
@@ -206,6 +207,28 @@ for (i in unique(Weekly.Data$abuse_type)) {
   # Add predictions to dataframe and then add to master Excess Search file
   Abuse.i.Weekly <- bind_cols(Abuse.i.Weekly, Weekly_pred)
   Weekly_Excess_Searches <- bind_rows(Weekly_Excess_Searches, Abuse.i.Weekly) 
+  
+  ### Check the linear model assumptions
+  augmented_dat1 <- augment(Weekly.model)
+  augmented_dat1 %<>% mutate(resid = mean_value - .fitted)
+
+  # QQ plot - check Normality of the residuals
+  plot2 <- ggplot(augmented_dat1, aes(sample = resid)) + 
+    geom_qq() + 
+    geom_qq_line() +
+    theme_minimal(base_size = 15) +
+    labs(y = "Residuals", x = "Theoretical quantiles", title = "(b) QQplot") 
+  
+  # Fitted vs. residuals
+  plot3 <-ggplot(augmented_dat1, aes(y = resid, x = .fitted)) + 
+    geom_point() + 
+    theme_minimal(base_size = 15) +
+    geom_hline(aes(yintercept = 0)) +
+    labs(y = "Residuals", x = "Fitted values", title = "(c) Fitted vs. residuals") 
+  
+  # Save model assumptions plots
+  Assumptions <- plot2 + plot3 + plot_layout(nrow = 2)
+  ggsave(paste0("Plots/Model_Assumptions_",i,".png"), Assumptions, height = 7, width = 12, units = "in")
  
 }
 
@@ -217,30 +240,6 @@ Weekly_Excess_Searches <- Weekly_Excess_Searches %>%
 # clean up environment
 rm(Abuse.i.Weekly, Weekly.Data.pre2020, Weekly.model, Weekly_pred) 
 
-```
-
-```{r}
-#Krista: can you incorporate this code into the previous code chunk and
-#save the plots for each of the three outcomes?
-#checking the linear model assumptions
-augmented_dat1 <- augment(Weekly.model)
-augmented_dat1 %<>% mutate(resid = mean_value - .fitted)
-
-# QQ plot - check Normality of the residuals
-plot2 <- ggplot(augmented_dat1, aes(sample = resid)) + 
-  geom_qq() + 
-  geom_qq_line() +
-  theme_minimal(base_size = 15) +
-  labs(y = "Residuals", x = "Theoretical quantiles", title = "(b) QQplot") 
-
-## Fitted vs. residuals
-plot3 <-ggplot(augmented_dat1, aes(y = resid, x = .fitted)) + 
-  geom_point() + 
-  theme_minimal(base_size = 15) +
-  geom_hline(aes(yintercept = 0)) +
-  labs(y = "Residuals", x = "Fitted values", title = "(c) Fitted vs. residuals") 
-
-plot2 + plot3 + plot_layout(nrow = 2) 
 ```
 
 # Data Visualizations
