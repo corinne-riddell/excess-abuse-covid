@@ -50,7 +50,6 @@ Throughout this analysis we use the following acronyms:
 
 path <- "/Users/corinneriddell/Library/CloudStorage/Box-Box/Google-search-data/Excess Search NATIONAL Analysis/TEST/"
 
-
 ## investigate the distribution of the sampled measures to answer reviewer question
 Weekly.CM0 <- read.csv(paste0(path, "WeeklyData/US-Weekly-CM.csv"),
                       stringsAsFactors = F)
@@ -186,6 +185,9 @@ for (i in unique(Weekly.Data$abuse_type)) {
   
   counter <- counter + 1
   Abuse.i.Weekly <- Weekly.Data %>% filter(abuse_type == i)
+  Abuse_name <- case_when(i == "CM" ~ "Child abuse victimization", 
+                          i == "DV" ~ "Child-witnessed IPV", 
+                          i == "IPV" ~ "Intimate partner violence")
   
   # Restrict to pre-2020 data to build model
   Weekly.Data.pre2020 <- Abuse.i.Weekly %>% filter(date < "2020-01-01")
@@ -213,23 +215,28 @@ for (i in unique(Weekly.Data$abuse_type)) {
   augmented_dat1 %<>% mutate(resid = mean_value - .fitted)
 
   # QQ plot - check Normality of the residuals
-  plot2 <- ggplot(augmented_dat1, aes(sample = resid)) + 
+  qqplot <- ggplot(augmented_dat1, aes(sample = resid)) + 
     geom_qq() + 
     geom_qq_line() +
     theme_minimal(base_size = 15) +
-    labs(y = "Residuals", x = "Theoretical quantiles", title = "(b) QQplot") 
+    labs(y = "Residuals", 
+         x = "Theoretical quantiles", 
+         title = paste0("QQ plot: ", Abuse_name)) 
+  
+  ggsave(paste0("Plots/Model_Assumptions_QQ_",i,".png"), qqplot, height = 5, width = 7, units = "in")
   
   # Fitted vs. residuals
-  plot3 <-ggplot(augmented_dat1, aes(y = resid, x = .fitted)) + 
+  fit_res_plot <-ggplot(augmented_dat1, aes(y = resid, x = .fitted)) + 
     geom_point() + 
     theme_minimal(base_size = 15) +
     geom_hline(aes(yintercept = 0)) +
-    labs(y = "Residuals", x = "Fitted values", title = "(c) Fitted vs. residuals") 
+    labs(y = "Residuals", 
+         x = "Fitted values", 
+         title =paste0("Fitted vs. residual Plot: ", Abuse_name)) 
   
-  # Save model assumptions plots
-  Assumptions <- plot2 + plot3 + plot_layout(nrow = 2)
-  ggsave(paste0("Plots/Model_Assumptions_",i,".png"), Assumptions, height = 7, width = 12, units = "in")
- 
+  ggsave(paste0("Plots/Model_Assumptions_fitres_",i,".png"), fit_res_plot, height = 5, width = 7, units = "in")
+   
+
 }
 
 # Add an indicator for whether the year is 2020
