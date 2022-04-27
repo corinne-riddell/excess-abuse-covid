@@ -47,7 +47,8 @@ Throughout this analysis we use the following acronyms:
 ```{r}
 
 # Load Weekly data. Single Data file includes all 10 samples for each abuse type. 
-
+# If you have downloaded data, you will need to update this with the pathway where your data is located.
+# We cannot share the data we downloaded because it is restricted by the data provider.
 path <- "/Users/corinneriddell/Library/CloudStorage/Box-Box/Google-search-data/Excess Search NATIONAL Analysis/TEST/"
 
 ## investigate the distribution of the sampled measures to answer reviewer question
