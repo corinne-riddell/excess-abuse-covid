@@ -1,0 +1,27 @@
+{
+    "id": "736E94D7",
+    "path": "~/GitHub/excess-abuse-covid/02-Data-Cleaning-Analysis-Viz.Rmd",
+    "project_path": "02-Data-Cleaning-Analysis-Viz.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1654114719918.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "chunk_output_type": "console",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "320,40",
+        "scrollLine": "324"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1654114906,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1654114906670,
+    "read_only": false,
+    "read_only_alternatives": []
+}
